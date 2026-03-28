@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= subject %> — SiATodo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117; --surface: #161b22; --surface2: #1c2128;
+      --accent: #58a6ff; --text: #e6edf3; --text2: #8b949e; --border: #30363d;
+    }
+    body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 0 32px; height: 64px;
+      display: flex; align-items: center;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-icon { width: 34px; height: 34px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .brand-icon svg { fill: #0d1117; }
+    .brand-name { font-size: 16px; font-weight: 700; }
+    main { max-width: 800px; margin: 0 auto; padding: 40px 24px; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text2); text-decoration: none; margin-bottom: 24px; transition: color .2s; }
+    .back-link:hover { color: var(--accent); }
+    .email-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .email-header { padding: 28px 32px; border-bottom: 1px solid var(--border); }
+    .email-subject { font-size: 20px; font-weight: 700; margin-bottom: 16px; line-height: 1.3; }
+    .meta { display: flex; flex-direction: column; gap: 6px; }
+    .meta-row { display: flex; gap: 8px; font-size: 13px; }
+    .meta-label { color: var(--text2); min-width: 40px; }
+    .meta-value { color: var(--text); }
+    .email-body { padding: 32px; font-size: 14px; line-height: 1.7; }
+    .email-body.plain { white-space: pre-wrap; word-break: break-word; color: var(--text); }
+    .email-body iframe { width: 100%; min-height: 500px; border: none; background: #fff; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      </div>
+      <span class="brand-name">SiATodo</span>
+    </div>
+  </header>
+  <main>
+    <a href="/emails" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      Volver a bandeja
+    </a>
+    <div class="email-card">
+      <div class="email-header">
+        <div class="email-subject"><%= subject %></div>
+        <div class="meta">
+          <div class="meta-row"><span class="meta-label">De:</span><span class="meta-value"><%= from %></span></div>
+          <% if (to) { %><div class="meta-row"><span class="meta-label">Para:</span><span class="meta-value"><%= to %></span></div><% } %>
+          <div class="meta-row"><span class="meta-label">Fecha:</span><span class="meta-value"><%= date %></span></div>
+        </div>
+      </div>
+      <div class="email-body <%= isHtml ? '' : 'plain' %>">
+        <% if (isHtml) { %>
+          <iframe srcdoc="<%- body.replace(/"/g, '&quot;') %>" sandbox="allow-same-origin"></iframe>
+        <% } else { %>
+          <%- body %>
+        <% } %>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

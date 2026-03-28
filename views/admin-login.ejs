@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Acceso — SiATodo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117; --surface: #161b22; --surface2: #1c2128;
+      --accent: #58a6ff; --red: #f85149;
+      --text: #e6edf3; --text2: #8b949e; --border: #30363d;
+    }
+    body {
+      font-family: 'Sora', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; padding: 48px 40px;
+      width: 100%; max-width: 380px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 36px; justify-content: center;
+    }
+    .logo-icon {
+      width: 38px; height: 38px; background: var(--accent);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    }
+    .logo-icon svg { fill: #0d1117; }
+    .logo-name { font-size: 18px; font-weight: 700; }
+    h1 { font-size: 20px; font-weight: 700; margin-bottom: 6px; text-align: center; }
+    .sub { font-size: 13px; color: var(--text2); text-align: center; margin-bottom: 32px; }
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .05em; }
+    .input-wrap { position: relative; margin-bottom: 20px; }
+    input[type="password"] {
+      width: 100%; padding: 12px 44px 12px 16px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text);
+      font-family: 'Sora', sans-serif; font-size: 15px;
+      outline: none; transition: border-color .2s;
+    }
+    input[type="password"]:focus { border-color: var(--accent); }
+    .toggle-pw {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      cursor: pointer; color: var(--text2); background: none; border: none;
+      display: flex; align-items: center;
+    }
+    .toggle-pw:hover { color: var(--text); }
+    .btn {
+      width: 100%; padding: 13px;
+      background: var(--accent); color: #0d1117;
+      border: none; border-radius: 10px;
+      font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: opacity .2s;
+    }
+    .btn:hover { opacity: .88; }
+    .error {
+      background: rgba(248,81,73,.1); border: 1px solid rgba(248,81,73,.25);
+      border-radius: 8px; padding: 10px 14px;
+      font-size: 13px; color: var(--red);
+      margin-bottom: 20px; text-align: center;
+    }
+    .lock-icon { text-align: center; font-size: 36px; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      </div>
+      <span class="logo-name">SiATodo</span>
+    </div>
+
+    <div class="lock-icon">🔐</div>
+    <h1>Acceso al panel</h1>
+    <p class="sub">Ingresá la contraseña de administrador</p>
+
+    <% if (error) { %>
+      <div class="error">Contraseña incorrecta. Intentá de nuevo.</div>
+    <% } %>
+
+    <form method="POST" action="/admin/login">
+      <label for="password">Contraseña</label>
+      <div class="input-wrap">
+        <input type="password" id="password" name="password" autofocus autocomplete="current-password" placeholder="••••••••"/>
+        <button type="button" class="toggle-pw" onclick="togglePw()">
+          <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+          </svg>
+        </button>
+      </div>
+      <button type="submit" class="btn">Ingresar</button>
+    </form>
+  </div>
+
+  <script>
+    function togglePw() {
+      const input = document.getElementById('password');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+  </script>
+</body>
+</html>

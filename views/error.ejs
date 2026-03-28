@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Error — SiATodo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg: #0d1117; --surface: #161b22; --red: #f85149; --text: #e6edf3; --text2: #8b949e; --border: #30363d; }
+    body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 48px; max-width: 520px; width: 100%; text-align: center; }
+    .icon { font-size: 48px; margin-bottom: 20px; }
+    h1 { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+    p { font-size: 14px; color: var(--text2); line-height: 1.6; margin-bottom: 28px; }
+    .error-detail { background: rgba(248,81,73,.08); border: 1px solid rgba(248,81,73,.2); border-radius: 8px; padding: 12px 16px; font-size: 13px; color: var(--red); margin-bottom: 28px; text-align: left; word-break: break-word; }
+    a { display: inline-block; padding: 10px 24px; background: #58a6ff; color: #0d1117; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600; transition: opacity .2s; }
+    a:hover { opacity: .85; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">⚠️</div>
+    <h1>Ocurrió un error</h1>
+    <p>No se pudo completar la operación. Revisá los detalles a continuación.</p>
+    <div class="error-detail"><%= message %></div>
+    <a href="/dashboard">← Volver al dashboard</a>
+  </div>
+</body>
+</html>

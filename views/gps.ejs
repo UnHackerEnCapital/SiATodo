@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GPS — SiATodo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117; --surface: #161b22; --surface2: #1c2128;
+      --accent: #58a6ff; --accent2: #3fb950; --red: #f85149;
+      --text: #e6edf3; --text2: #8b949e; --border: #30363d;
+    }
+    body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 0 32px; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-icon { width: 34px; height: 34px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .brand-icon svg { fill: #0d1117; }
+    .brand-name { font-size: 16px; font-weight: 700; }
+    .user-section { display: flex; align-items: center; gap: 12px; }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--border); object-fit: cover; }
+    .user-name { font-size: 14px; font-weight: 500; }
+    .user-email { font-size: 12px; color: var(--text2); }
+    main { max-width: 960px; margin: 0 auto; padding: 40px 24px; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text2); text-decoration: none; margin-bottom: 24px; transition: color .2s; }
+    .back-link:hover { color: var(--accent); }
+    h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+    .sub { font-size: 13px; color: var(--text2); margin-bottom: 32px; }
+    /* Info card */
+    .info-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 24px 28px; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    }
+    .icon { width: 52px; height: 52px; border-radius: 12px; background: rgba(248,81,73,.10); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .icon svg { width: 26px; height: 26px; fill: var(--red); }
+    .coords { flex: 1; }
+    .coords h2 { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+    .coords-grid { display: flex; gap: 32px; flex-wrap: wrap; }
+    .coord-item label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; display: block; margin-bottom: 3px; }
+    .coord-item span { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .coord-item span.pending { color: var(--text2); font-weight: 400; font-size: 14px; }
+    /* Map */
+    .map-container {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      overflow: hidden; height: 420px; position: relative;
+    }
+    .map-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px; color: var(--text2); font-size: 14px;
+    }
+    .map-placeholder svg { width: 40px; height: 40px; fill: var(--text2); opacity: .3; }
+    #map-iframe { width: 100%; height: 100%; border: none; display: none; }
+    /* Buttons */
+    .btn-row { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; border-radius: 8px; font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: opacity .2s; }
+    .btn:hover { opacity: .85; }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-primary { background: var(--red); color: #fff; }
+    .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    /* Error */
+    .error-msg { background: rgba(248,81,73,.08); border: 1px solid rgba(248,81,73,.3); border-radius: 10px; padding: 14px 18px; font-size: 13px; color: var(--red); margin-top: 16px; display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      </div>
+      <span class="brand-name">SiATodo</span>
+    </div>
+    <div class="user-section">
+      <% if (avatar) { %><img class="avatar" src="<%= avatar %>" alt="avatar"/><% } %>
+      <div>
+        <div class="user-name"><%= name %></div>
+        <div class="user-email"><%= email %></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <a href="/dashboard" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      Volver al dashboard
+    </a>
+
+    <h1>Ubicación GPS</h1>
+    <p class="sub">Coordenadas obtenidas desde el navegador · Se solicita permiso al dispositivo</p>
+
+    <div class="info-card">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      </div>
+      <div class="coords">
+        <h2>Coordenadas actuales</h2>
+        <div class="coords-grid">
+          <div class="coord-item"><label>Latitud</label><span id="lat" class="pending">—</span></div>
+          <div class="coord-item"><label>Longitud</label><span id="lng" class="pending">—</span></div>
+          <div class="coord-item"><label>Precisión</label><span id="acc" class="pending">—</span></div>
+          <div class="coord-item"><label>Capturado</label><span id="ts" class="pending">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="map-container">
+      <div class="map-placeholder" id="map-placeholder">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        <span>Presioná "Obtener ubicación" para ver el mapa</span>
+      </div>
+      <iframe id="map-iframe" allowfullscreen></iframe>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btn-locate" onclick="getLocation()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        <span id="btn-label">Obtener ubicación</span>
+        <div class="spinner" id="spinner"></div>
+      </button>
+      <button class="btn btn-secondary" id="btn-copy" onclick="copyCoords()" style="display:none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        Copiar coordenadas
+      </button>
+    </div>
+    <div class="error-msg" id="error-msg"></div>
+  </main>
+
+  <script>
+    const MAPS_KEY = '<%= googleMapsKey %>';
+
+    function getLocation() {
+      if (!navigator.geolocation) { showError('Este navegador no soporta geolocalización.'); return; }
+      const btn = document.getElementById('btn-locate');
+      const label = document.getElementById('btn-label');
+      const spinner = document.getElementById('spinner');
+      document.getElementById('error-msg').style.display = 'none';
+      btn.disabled = true; label.textContent = 'Obteniendo...'; spinner.style.display = 'block';
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude.toFixed(6);
+          const lng = pos.coords.longitude.toFixed(6);
+          const acc = pos.coords.accuracy ? Math.round(pos.coords.accuracy) + ' m' : '—';
+          const ts  = new Date().toLocaleString('es-AR');
+
+          setText('lat', lat); setText('lng', lng); setText('acc', acc); setText('ts', ts);
+
+          const placeholder = document.getElementById('map-placeholder');
+          const iframe = document.getElementById('map-iframe');
+          placeholder.style.display = 'none';
+
+          iframe.src = MAPS_KEY
+            ? `https://www.google.com/maps/embed/v1/place?key=${MAPS_KEY}&q=${lat},${lng}&zoom=15`
+            : `https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
+          iframe.style.display = 'block';
+
+          btn.disabled = false; label.textContent = 'Actualizar'; spinner.style.display = 'none';
+          document.getElementById('btn-copy').style.display = 'inline-flex';
+        },
+        (err) => {
+          btn.disabled = false; label.textContent = 'Obtener ubicación'; spinner.style.display = 'none';
+          const msgs = { 1: 'Permiso denegado. Habilitá la ubicación en tu navegador.', 2: 'Posición no disponible.', 3: 'Tiempo de espera agotado.' };
+          showError(msgs[err.code] || 'Error al obtener GPS.');
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      );
+    }
+
+    function setText(id, val) {
+      const el = document.getElementById(id);
+      el.textContent = val;
+      el.classList.remove('pending');
+    }
+
+    function copyCoords() {
+      const lat = document.getElementById('lat').textContent;
+      const lng = document.getElementById('lng').textContent;
+      if (lat === '—') return;
+      navigator.clipboard.writeText(`${lat}, ${lng}`).then(() => {
+        const btn = document.getElementById('btn-copy');
+        const orig = btn.innerHTML;
+        btn.textContent = '✓ Copiado';
+        setTimeout(() => btn.innerHTML = orig, 2000);
+      });
+    }
+
+    function showError(msg) {
+      const div = document.getElementById('error-msg');
+      div.textContent = msg; div.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

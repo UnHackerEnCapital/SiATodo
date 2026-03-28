@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — SiATodo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117; --surface: #161b22; --surface2: #1c2128;
+      --accent: #58a6ff; --accent2: #3fb950; --red: #f85149;
+      --text: #e6edf3; --text2: #8b949e; --border: #30363d;
+    }
+    body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 0 32px; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-icon { width: 34px; height: 34px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .brand-icon svg { fill: #0d1117; }
+    .brand-name { font-size: 16px; font-weight: 700; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--border); object-fit: cover; background: var(--surface2); }
+    .user-name { font-size: 14px; font-weight: 500; }
+    .user-email { font-size: 12px; color: var(--text2); }
+    /* Agregar cuenta btn */
+    .btn-add {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px;
+      background: rgba(88,166,255,.12); border: 1px solid rgba(88,166,255,.25);
+      color: var(--accent); font-family: 'Sora', sans-serif;
+      font-size: 13px; font-weight: 600; text-decoration: none;
+      transition: background .2s;
+    }
+    .btn-add:hover { background: rgba(88,166,255,.2); }
+    main { max-width: 1000px; margin: 0 auto; padding: 40px 24px; }
+    /* Cuentas */
+    .section-label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; }
+    .accounts-bar {
+      display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 40px;
+    }
+    .account-chip {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 14px; border-radius: 30px;
+      border: 1px solid var(--border); background: var(--surface);
+      text-decoration: none; color: var(--text2);
+      font-size: 13px; transition: all .2s; cursor: pointer;
+    }
+    .account-chip:hover { border-color: var(--accent); color: var(--text); }
+    .account-chip.active { border-color: var(--accent); background: rgba(88,166,255,.1); color: var(--accent); font-weight: 600; }
+    .account-chip img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+    .account-chip .chip-avatar-placeholder { width: 22px; height: 22px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--text2); }
+    .remove-btn {
+      margin-left: 4px; color: var(--text2); font-size: 15px; line-height: 1;
+      text-decoration: none; opacity: .5; transition: opacity .2s;
+    }
+    .remove-btn:hover { opacity: 1; color: var(--red); }
+    /* Cards */
+    .welcome { margin-bottom: 32px; }
+    .welcome h1 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+    .welcome p { color: var(--text2); font-size: 14px; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+    @media (max-width: 720px) { .cards { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 28px; text-decoration: none; color: var(--text);
+      display: flex; flex-direction: column; gap: 14px;
+      transition: border-color .2s, transform .2s, box-shadow .2s;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,.3); }
+    .card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+    .card-icon svg { width: 24px; height: 24px; }
+    .card h2 { font-size: 17px; font-weight: 600; }
+    .card p { font-size: 13px; color: var(--text2); line-height: 1.5; }
+    .card-arrow { margin-top: auto; font-size: 12px; font-weight: 600; }
+    .status-bar {
+      margin-top: 40px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 20px;
+      display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text2);
+    }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent2); flex-shrink: 0; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      </div>
+      <span class="brand-name">SiATodo</span>
+    </div>
+    <div class="header-right">
+      <a href="/admin/logout" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.2);color:#f85149;font-family:Sora,sans-serif;font-size:13px;font-weight:600;text-decoration:none;margin-right:8px;" title="Cerrar sesión del panel">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+        Salir
+      </a>
+      <a href="/auth/google" class="btn-add">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        Agregar cuenta
+      </a>
+      <% if (avatar) { %>
+        <img class="avatar" src="<%= avatar %>" alt="avatar"/>
+      <% } %>
+      <div>
+        <div class="user-name"><%= name %></div>
+        <div class="user-email"><%= email %></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Selector de cuentas -->
+    <% if (accounts.length > 0) { %>
+      <div class="section-label">Cuentas capturadas (<%= accounts.length %>)</div>
+      <div class="accounts-bar">
+        <% accounts.forEach(acc => { %>
+          <div class="account-chip <%= acc.email === activeEmail ? 'active' : '' %>">
+            <a href="/switch/<%= encodeURIComponent(acc.email) %>" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;">
+              <% if (acc.avatar) { %>
+                <img src="<%= acc.avatar %>" alt=""/>
+              <% } else { %>
+                <div class="chip-avatar-placeholder"><%= acc.name[0] %></div>
+              <% } %>
+              <span><%= acc.email %></span>
+            </a>
+            <a href="/remove/<%= encodeURIComponent(acc.email) %>" class="remove-btn" title="Eliminar cuenta">×</a>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <div class="welcome">
+      <h1>Panel de control</h1>
+      <p>Sesión activa · <strong style="color:var(--accent)"><%= email %></strong></p>
+    </div>
+
+    <div class="cards">
+      <a href="/emails" class="card">
+        <div class="card-icon" style="background:rgba(88,166,255,.12);">
+          <svg viewBox="0 0 24 24" style="fill:var(--accent)"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        </div>
+        <h2>Correos de Gmail</h2>
+        <p>Ver los últimos mensajes recibidos: asunto, remitente y contenido completo.</p>
+        <div class="card-arrow" style="color:var(--accent)">Ver bandeja →</div>
+      </a>
+
+      <a href="/photos" class="card">
+        <div class="card-icon" style="background:rgba(63,185,80,.12);">
+          <svg viewBox="0 0 24 24" style="fill:var(--accent2)"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+        </div>
+        <h2>Google Photos</h2>
+        <p>Explorar las fotos más recientes con previsualización y apertura en pantalla completa.</p>
+        <div class="card-arrow" style="color:var(--accent2)">Ver galería →</div>
+      </a>
+
+      <a href="/gps" class="card">
+        <div class="card-icon" style="background:rgba(248,81,73,.10);">
+          <svg viewBox="0 0 24 24" style="fill:#f85149"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        </div>
+        <h2>Ubicación GPS</h2>
+        <p>Obtener coordenadas en tiempo real del dispositivo y visualizar en el mapa.</p>
+        <div class="card-arrow" style="color:#f85149">Ver ubicación →</div>
+      </a>
+    </div>
+
+    <div class="status-bar">
+      <div class="status-dot"></div>
+      Sesión en curso · <%= accounts.length %> cuenta<%= accounts.length !== 1 ? 's' : '' %> disponible<%= accounts.length !== 1 ? 's' : '' %> · datos en tiempo real desde las APIs de Google.
+    </div>
+  </main>
+</body>
+</html>

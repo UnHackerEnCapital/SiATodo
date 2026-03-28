@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fotos — SiATodo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117; --surface: #161b22; --surface2: #1c2128;
+      --accent: #58a6ff; --accent2: #3fb950;
+      --text: #e6edf3; --text2: #8b949e; --border: #30363d;
+    }
+    body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 0 32px; height: 64px;
+      display: flex; align-items: center;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-icon { width: 34px; height: 34px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .brand-icon svg { fill: #0d1117; }
+    .brand-name { font-size: 16px; font-weight: 700; }
+    main { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text2); text-decoration: none; margin-bottom: 24px; transition: color .2s; }
+    .back-link:hover { color: var(--accent); }
+    .page-header { margin-bottom: 28px; }
+    h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+    .sub { font-size: 13px; color: var(--text2); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 12px;
+    }
+    .photo-item {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      overflow: hidden; cursor: pointer;
+      transition: border-color .2s, transform .15s;
+    }
+    .photo-item:hover { border-color: var(--accent2); transform: scale(1.02); }
+    .photo-item img {
+      width: 100%; aspect-ratio: 1; object-fit: cover; display: block;
+      background: var(--surface2);
+    }
+    .photo-info { padding: 10px 12px; }
+    .photo-name { font-size: 12px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .photo-date { font-size: 11px; color: var(--text2); margin-top: 2px; }
+    /* Lightbox */
+    .lightbox {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.95); z-index: 100;
+      align-items: center; justify-content: center;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 92vw; max-height: 90vh; border-radius: 8px; object-fit: contain; }
+    .lightbox-close {
+      position: absolute; top: 20px; right: 24px;
+      font-size: 34px; color: #fff; cursor: pointer;
+      background: none; border: none; opacity: .6; transition: opacity .2s;
+    }
+    .lightbox-close:hover { opacity: 1; }
+    .empty { text-align: center; padding: 80px 0; color: var(--text2); font-size: 14px; }
+    .empty svg { width: 48px; height: 48px; fill: var(--text2); opacity: .3; display: block; margin: 0 auto 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      </div>
+      <span class="brand-name">SiATodo</span>
+    </div>
+  </header>
+  <main>
+    <a href="/dashboard" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      Volver al dashboard
+    </a>
+    <div class="page-header">
+      <h1>Google Drive — Imágenes</h1>
+      <p class="sub"><%= items.length %> imágenes encontradas · <span style="color:var(--accent)"><%= email %></span></p>
+    </div>
+
+    <% if (items.length === 0) { %>
+      <div class="empty">
+        <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+        No se encontraron imágenes en Google Drive.
+      </div>
+    <% } else { %>
+      <div class="grid">
+        <% items.forEach(item => { %>
+          <div class="photo-item" onclick="openLightbox('<%= item.full %>')">
+            <img src="<%= item.thumb %>" alt="<%= item.filename %>" loading="lazy"
+                 onerror="this.src='https://drive.google.com/thumbnail?id=<%= item.id %>&sz=w400'"/>
+            <div class="photo-info">
+              <div class="photo-name"><%= item.filename %></div>
+              <div class="photo-date"><%= item.date %></div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+
+  <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">×</button>
+    <img id="lightbox-img" src="" alt="foto"/>
+  </div>
+
+  <script>
+    function openLightbox(url) {
+      document.getElementById('lightbox-img').src = url;
+      document.getElementById('lightbox').classList.add('open');
+    }
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('open');
+      document.getElementById('lightbox-img').src = '';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+  </script>
+</body>
+</html>
